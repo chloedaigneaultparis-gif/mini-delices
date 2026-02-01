@@ -1,0 +1,52 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Catalogue — Mini-délices</title><link rel="stylesheet" href="assets/styles.css" /></head><body>
+<header class="site-header">
+  <a class="brand" href="index.html">🍪 <span>Mini-délices</span></a>
+  <nav class="nav">
+    <a aria-current="page" href="catalogue.html">Catalogue</a>
+    <a href="a-propos.html">À propos</a>
+    <a href="faq.html">FAQ</a>
+    <a class="cart-link" href="panier.html">Panier <span id="cartCount" class="badge">0</span></a>
+  </nav>
+</header>
+<main><section class="section"><h1>Catalogue</h1>
+<p class="muted">Modifiez <code>assets/products.js</code> pour ajuster les prix, photos et descriptions.</p>
+<div class="toolbar"><input id="search" class="input" placeholder="Rechercher (ex. événement)" />
+<select id="sort" class="input"><option value="pop">Tri : populaires</option><option value="asc">Prix : croissant</option><option value="desc">Prix : décroissant</option></select></div>
+<div id="productGrid" class="grid"></div></section>
+<section class="section">
+  <h2>Saveurs du moment</h2>
+  <div class="card">
+    <p class="muted">Les assortiments peuvent varier selon la production. Indiquez vos préférences en note lors de la précommande.</p>
+    <ul id="flavorList" class="list"></ul>
+  </div>
+</section>
+<script>
+  const ul = document.getElementById('flavorList');
+  if(typeof CONFIG !== 'undefined' && ul){
+    ul.innerHTML = CONFIG.flavors.map(f=>`<li><span>• ${f}</span></li>`).join('');
+  }
+</script>
+</main>
+<footer class="site-footer"><p>© <span id="year"></span> Mini-délices</p></footer>
+<script src="assets/products.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
+<script>
+const grid=document.getElementById('productGrid');
+const search=document.getElementById('search');
+const sort=document.getElementById('sort');
+function render(){
+  let list=[...PRODUCTS];
+  const q=(search.value||'').toLowerCase().trim();
+  if(q){ list=list.filter(p=>(p.name+p.description+p.tags.join(' ')).toLowerCase().includes(q)); }
+  if(sort.value==='asc') list.sort((a,b)=>a.price-b.price);
+  if(sort.value==='desc') list.sort((a,b)=>b.price-a.price);
+  if(sort.value==='pop') list.sort((a,b)=>b.popularity-a.popularity);
+  grid.innerHTML=list.map(p=>productCard(p)).join('');
+}
+search.addEventListener('input', render);
+sort.addEventListener('change', render);
+render();
+</script>
+</body></html>

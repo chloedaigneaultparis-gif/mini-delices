@@ -1,0 +1,80 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Caisse — Mini-délices</title><link rel="stylesheet" href="assets/styles.css" /></head><body>
+<header class="site-header"><a class="brand" href="index.html">🍪 <span>Mini-délices</span></a><nav class="nav"><a href="catalogue.html">Catalogue</a><a class="cart-link" href="panier.html">Panier <span id="cartCount" class="badge">0</span></a></nav></header>
+<main><section class="section"><h1>Passer à la caisse</h1>
+<p class="muted">Mode <strong>précommande</strong> : on génère un courriel avec le détail de la commande. Optionnel : ajoutez un lien Stripe pour payer en ligne.</p>
+<div class="cart">
+  <div class="card scallop"><h2>Coordonnées</h2>
+    <form id="orderForm" class="form">
+      <div class="form__row"><label>Nom<input class="input" name="name" required /></label><label>Téléphone<input class="input" name="phone" required /></label></div>
+      <label>Courriel<input class="input" type="email" name="email" required /></label>
+      <div class="form__row"><label>Mode<select class="input" name="mode"><option value="livraison">Livraison</option><option value="cueillette">Cueillette</option></select></label>
+        <label>Date souhaitée<input class="input" type="date" name="date" /></label></div>
+      <label>Adresse (si livraison)<input class="input" name="address" placeholder="Rue, ville, code postal" /></label>
+      <label>Note<textarea class="input" name="note" rows="3" placeholder="Allergies, instructions, etc."></textarea></label>
+      <button class="btn" type="submit">Générer la précommande</button>
+      <p class="muted">Astuce : indiquez vos préférences de saveurs dans la note.</p>
+    </form>
+  </div>
+  <aside class="card scallop"><h2>Récapitulatif</h2><div id="summary"></div>
+    <div class="row row--total"><span>Total estimé</span><strong id="total">0,00 $</strong></div>
+    <a id="emailLink" class="btn btn--ghost" href="#" style="margin-top:10px;display:none;">Envoyer par courriel</a>
+    <a id="stripeLink" class="btn" href="#" style="margin-top:10px;display:none;">Payer (Stripe)</a>
+  </aside>
+</div>
+</section></main>
+<footer class="site-footer"><p>© <span id="year"></span> Mini-délices</p></footer>
+<script src="assets/products.js"></script><script src="assets/config.js"></script><script src="assets/app.js"></script>
+<script>
+const summary=document.getElementById('summary');
+const totalEl=document.getElementById('total');
+const emailLink=document.getElementById('emailLink');
+const stripeLink=document.getElementById('stripeLink');
+function renderSummary(){
+  const lines=cartToLines(getCart());
+  const meta=getCartMeta();
+  if(lines.length===0){ summary.innerHTML='<p class="muted">Panier vide. <a href="catalogue.html">Retour au catalogue</a></p>'; totalEl.textContent=money(0); return; }
+  const subtotal=lines.reduce((s,l)=>s+l.lineTotal,0);
+  const ship=meta.shipping ?? (subtotal>=65?0:6.99);
+  const total=subtotal+ship;
+  summary.innerHTML=`<ul class="list">${lines.map(l=>`<li><span>${l.qty} × ${l.product.name}</span><strong>${money(l.lineTotal)}</strong></li>`).join('')}<li class="muted"><span>Livraison</span><strong>${money(ship)}</strong></li></ul>`;
+  totalEl.textContent=money(total);
+}
+
+document.getElementById('orderForm').addEventListener('submit',(e)=>{
+  e.preventDefault();
+  const data=Object.fromEntries(new FormData(e.target).entries());
+  const lines=cartToLines(getCart());
+  const meta=getCartMeta();
+  const subtotal=lines.reduce((s,l)=>s+l.lineTotal,0);
+  const ship=meta.shipping ?? (subtotal>=65?0:6.99);
+  const total=subtotal+ship;
+  const body=[
+    `Bonjour,`,
+    `
+Je souhaite passer une précommande Mini-délices :`,
+    `
+Client : ${data.name}`,
+    `Téléphone : ${data.phone}`,
+    `Courriel : ${data.email}`,
+    `Mode : ${data.mode}`,
+    data.date ? `Date : ${data.date}` : null,
+    data.address ? `Adresse : ${data.address}` : null,
+    data.note ? `Note : ${data.note}` : null,
+    `
+Articles :`,
+    ...lines.map(l=>`- ${l.qty} x ${l.product.name} (${money(l.product.price)}): ${money(l.lineTotal)}`),
+    `
+Livraison : ${money(ship)}`,
+    `Total estimé : ${money(total)}`,
+    `
+Merci!`
+  ].filter(Boolean).join('
+');
+  const subject=encodeURIComponent('Précommande Mini-délices');
+  emailLink.href=`mailto:${CONFIG.orderEmail}?subject=${subject}&body=${encodeURIComponent(body)}`;
+  emailLink.style.display='inline-flex';
+  if(CONFIG.stripePaymentLink){ stripeLink.href=CONFIG.stripePaymentLink; stripeLink.style.display='inline-flex'; }
+});
+renderSummary();
+</script></body></html>

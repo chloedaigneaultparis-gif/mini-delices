@@ -1,0 +1,42 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mini-délices — Tea Party</title>
+<meta name="description" content="Mini-biscuits artisanaux en boîtes de 12, 24 ou 48 — précommande en ligne." />
+<link rel="stylesheet" href="assets/styles.css" /></head><body>
+<header class="site-header">
+  <a class="brand" href="index.html">🍪 <span>Mini-délices</span></a>
+  <nav class="nav">
+    <a href="catalogue.html">Catalogue</a>
+    <a href="a-propos.html">À propos</a>
+    <a href="faq.html">FAQ</a>
+    <a class="cart-link" href="panier.html">Panier <span id="cartCount" class="badge">0</span></a>
+  </nav>
+</header>
+<main>
+<section class="hero"><div class="hero__content">
+<h1>Un petit tea party… en mini-biscuits.</h1>
+<p>Précommandez nos <strong>Mini-délices</strong> en boîtes de <strong>12</strong>, <strong>24</strong> ou <strong>48</strong>. Livraison et cueillette disponibles.</p>
+<div class="hero__actions"><a class="btn" href="catalogue.html">Voir le catalogue</a><a class="btn btn--ghost" href="#best-sellers">Meilleures ventes</a></div>
+<ul class="trust"><li>🫖 Petites fournées</li><li>🌸 Cuisson du jour</li><li>💌 Précommande simple</li></ul>
+</div><div class="hero__card"><h3>Parfait pour…</h3><p>🎀 Brunch · 🫖 Tea time · 🎁 Cadeaux</p><p class="muted">Les boîtes sont assorties selon les saveurs du moment.</p></div></section>
+<section id="best-sellers" class="section"><h2>Boîtes populaires</h2><div id="productGrid" class="grid"></div></section>
+<section class="section">
+  <h2>Saveurs du moment</h2>
+  <div class="card">
+    <p class="muted">Les assortiments peuvent varier selon la production. Indiquez vos préférences en note lors de la précommande.</p>
+    <ul id="flavorList" class="list"></ul>
+  </div>
+</section>
+<script>
+  const ul = document.getElementById('flavorList');
+  if(typeof CONFIG !== 'undefined' && ul){
+    ul.innerHTML = CONFIG.flavors.map(f=>`<li><span>• ${f}</span></li>`).join('');
+  }
+</script>
+</main>
+<footer class="site-footer"><p>© <span id="year"></span> Mini-délices — Fait avec amour à Montréal.</p>
+<p class="muted"><a href="mentions-legales.html">Mentions</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="contact.html">Contact</a></p></footer>
+<script src="assets/products.js"></script>
+<script src="assets/config.js"></script>
+<script src="assets/app.js"></script>
+<script>document.getElementById('productGrid').innerHTML = PRODUCTS.map(p=>productCard(p)).join('');</script>
+</body></html>
